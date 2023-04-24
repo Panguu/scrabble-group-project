@@ -1,0 +1,69 @@
+const express = require('express')
+const app = express()
+const port = 3000
+const rows = 15
+const cols = 15
+
+player_rack = {}
+
+board = {}
+var turn = 1
+var i;
+for (i = 0; i < rows; i++) {
+  board[i] = [];
+  for (j = 0; j < cols; j++) {
+    board[i].push('#');
+  }
+}
+
+app.get('/', (req, res) => {
+  res.send('Scrabble Game')
+})
+
+app.get('/reset', (req, res) => {
+  board = {}
+  var i;
+  for (i = 0; i < rows; i++) {
+    board[i] = [];
+    for (j = 0; j < cols; j++) {
+      board[i].push('-');
+    }
+  }
+  res.send(req.param('tilepos'));
+})
+app.get('/display', (req, res) => {
+  var state_text = '';
+  for(i=0; i<Object.keys(board).length; i++) {
+    for(j=0; j<board[i].length; j++) {
+      state_text += ' ';
+      state_text += board[i][j];
+      state_text += ' ';
+    }
+    state_text += "<br>";
+  }
+  state_text += 'Turn: Player '
+  state_text += turn
+  res.send(state_text)
+})
+
+app.get('/settile', (req, res) => {
+  board[Number(req.param('y'))].splice(Number(req.param('x')), 1, req.param('char'));
+  turn = Number(req.param('turn'));
+  res.send('character set.');
+})
+app.get('/setrack', (req, res) => {
+  player_rack[req.param('player')].push(req.param('rack'))
+  res.send('New rack for player ' + player_rack[req.param('player')] + 'now set' + req.param('rack'))
+})
+
+app.get('/getturn', (req, res) => {
+  res.send(String(turn));
+})
+
+app.get('/getdata', (req, res) => {
+  res.send(board)
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
